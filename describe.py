@@ -16,20 +16,23 @@ class Dataset:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data.append(row)
+
         return data
 
     def get_numerical_features(self):
         numerical_features = []
         first_row = self.data[0]
         for feature_name in first_row:
-            try:
-                float(first_row[feature_name])
-                numerical_features.append(feature_name)
-            except ValueError:
-                pass
+            value = first_row[feature_name]
+            if value != "":
+                try:
+                    float(first_row[feature_name])
+                    numerical_features.append(feature_name)
+                except ValueError:
+                    continue
 
         return numerical_features
-    
+
     def get_statistics(self):
         stats = {}
         for feature in self.features:
@@ -37,7 +40,11 @@ class Dataset:
             for row in self.data:
                 value = row[feature]
                 if value != "":
-                    values.append(float(value))
+                    try:
+                        values.append(float(value))
+                    except ValueError:
+                        continue
+
             stats[feature] = {
                 "Count": len(values),
                 "Mean": self.mean(values),
@@ -46,17 +53,17 @@ class Dataset:
                 "20%": self.get_percentiles(values)[20],
                 "50%": self.get_percentiles(values)[50],
                 "75%": self.get_percentiles(values)[75],
-                "Max": self.find_max(values)
+                "Max": self.find_max(values),
             }
 
         return stats
-    
+
     def mean(self, values):
         total = 0.0
         for value in values:
             total += value
         return total / len(values)
-    
+
     def std_dev(self, values):
         mean = self.mean(values)
         total = 0.0
@@ -64,7 +71,7 @@ class Dataset:
             total += (value - mean) ** 2
 
         return math.sqrt(total / len(values))
-    
+
     def find_min(self, values):
         min_value = values[0]
         for value in values:
@@ -72,16 +79,19 @@ class Dataset:
                 min_value = value
 
         return min_value
-    
+
     def find_max(self, values):
         max_value = values[0]
         for value in values:
             if value > max_value:
                 max_value = value
-                
+
         return max_value
-    
+
     def get_percentiles(self, values):
+        if not values:
+            return {20: None, 50: None, 75: None}
+
         sorted_values = sorted(values)
         n = len(sorted_values)
         percentiles = {}
@@ -90,7 +100,7 @@ class Dataset:
             f = math.floor(k)
             c = math.ceil(k)
             if c == f:
-                percentiles[percentile] = sorted_values[int(k)]
+                value = sorted_values[int(k)]
             else:
                 d0 = sorted_values[int(f)] * (c - k)
                 d1 = sorted_values[int(c)] * (k - f)
@@ -98,22 +108,21 @@ class Dataset:
             percentiles[percentile] = value
 
         return percentiles
-    
+
     def truncate(self, string, lenght):
         if len(string) > lenght:
-            return string[:lenght - 2] + ".."
+            return string[: lenght - 2] + ".."
         else:
             return string
-    
+
     def display_statistics(self):
-        column_width = 12
+        rows = ["Count", "Mean", "Std Dev", "Min", "20%", "50%", "75%", "Max"]
+        column_width = 14
         headers = [""]
+
         for feature in self.features:
             headers.append(self.truncate(feature, column_width))
-        
-        rows = ["Count", "Mean", "Std Dev", "Min", "20%", "50%", "75%", "Max"]
 
-        print(f"{'':<{column_width}}", end="|")
         for header in headers:
             print(f"{header:<{column_width}}", end="|")
         print()
@@ -129,7 +138,7 @@ class Dataset:
             print()
 
 if __name__ == "__main__":
-    if (len(sys.argv) != 2):
+    if len(sys.argv) != 2:
         print("Usage: python describe.py <dataset>")
         sys.exit(1)
     else:
