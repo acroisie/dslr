@@ -99,24 +99,33 @@ class Dataset:
 
         return percentiles
     
+    def truncate(self, string, lenght):
+        if len(string) > lenght:
+            return string[:lenght - 2] + ".."
+        else:
+            return string
+    
     def display_statistics(self):
-        headers = [""] + list(self.features)
-        rows = ["Count", "Mean", "Std Dev", "Min", "20%", "50%", "75%", "Max"]
-        column_width = 15
-
-        print(f"{'':<{column_width}}", end="")
+        column_width = 12
+        headers = [""]
         for feature in self.features:
-            print(f"{feature:<{column_width}}", end="")
+            headers.append(self.truncate(feature, column_width))
+        
+        rows = ["Count", "Mean", "Std Dev", "Min", "20%", "50%", "75%", "Max"]
+
+        print(f"{'':<{column_width}}", end="|")
+        for header in headers:
+            print(f"{header:<{column_width}}", end="|")
         print()
 
         for row in rows:
-            print(f"{row:<{column_width}}", end="")
+            print(f"{row:<{column_width}}", end="|")
             for feature in self.features:
                 value = self.statistics[feature][row]
                 if isinstance(value, float):
-                    print(f"{value:<{column_width}.6f}", end="")
+                    print(f"{value:<{column_width}.6f}", end="|")
                 else:
-                    print(f"{value:<{column_width}}", end="")
+                    print(f"{value:<{column_width}}", end="|")
             print()
 
 if __name__ == "__main__":
