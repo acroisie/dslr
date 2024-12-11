@@ -1,13 +1,18 @@
 from describe import Dataset
 import matplotlib.pyplot as plt
 
+def on_close(event):
+    print(f"\n{event.name}")
+    exit(0)
+
 if __name__ == "__main__":
     dataset = Dataset("./data/dataset_train.csv")
     features = dataset.get_features()
     houses = dataset.get_houses()
 
     plt.ion()
-    _, ax = plt.subplots()
+    fig, ax = plt.subplots()
+    fig.canvas.mpl_connect('close_event', on_close)
 
 try:
     for feature in features:
