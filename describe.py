@@ -12,10 +12,20 @@ class Dataset:
 
     def read_csv(self):
         data = []
-        with open(self.filename, "r") as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                data.append(row)
+        try:
+            with open(self.filename, "r") as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    data.append(row)
+        except FileNotFoundError:
+            print(f"File {self.filename} not found.")
+            sys.exit(1)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            sys.exit(1)
+        if not data:
+            print(f"File {self.filename} is empty.")
+            sys.exit(1)
 
         return data
 
@@ -23,6 +33,8 @@ class Dataset:
         numerical_features = []
         first_row = self.data[0]
         for feature_name in first_row:
+            if feature_name == "Index":
+                continue
             value = first_row[feature_name]
             if value != "":
                 try:
@@ -50,7 +62,7 @@ class Dataset:
                 "Mean": self.mean(values),
                 "Std Dev": self.std_dev(values),
                 "Min": self.find_min(values),
-                "20%": self.get_percentiles(values)[20],
+                "25%": self.get_percentiles(values)[25],
                 "50%": self.get_percentiles(values)[50],
                 "75%": self.get_percentiles(values)[75],
                 "Max": self.find_max(values),
@@ -90,12 +102,12 @@ class Dataset:
 
     def get_percentiles(self, values):
         if not values:
-            return {20: None, 50: None, 75: None}
+            return {25: None, 50: None, 75: None}
 
         sorted_values = sorted(values)
         n = len(sorted_values)
         percentiles = {}
-        for percentile in [20, 50, 75]:
+        for percentile in [25, 50, 75]:
             k = (n - 1) * percentile / 100
             f = math.floor(k)
             c = math.ceil(k)
@@ -116,7 +128,7 @@ class Dataset:
             return string
 
     def display_statistics(self):
-        rows = ["Count", "Mean", "Std Dev", "Min", "20%", "50%", "75%", "Max"]
+        rows = ["Count", "Mean", "Std Dev", "Min", "25%", "50%", "75%", "Max"]
         column_width = 14
         headers = [""]
 
