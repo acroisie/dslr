@@ -10,6 +10,15 @@ class Dataset:
         self.features = self.get_numerical_features()
         self.statistics = self.get_statistics()
 
+    def get_data(self):
+        return self.data
+    
+    def get_features(self):
+        return self.features
+    
+    def get_statistics(self):
+        return self.statistics
+
     def read_csv(self):
         data = []
         try:
@@ -44,6 +53,28 @@ class Dataset:
                     continue
 
         return numerical_features
+
+    def get_houses(self):
+        houses = set()
+        for row in self.data:
+            houses.add(row["Hogwarts House"])
+
+        return houses
+
+    def values_by_house(self, feature):
+        values = {}
+        for house in self.get_houses():
+            values[house] = []
+        for row in self.data:
+            value = row[feature]
+            if value != "":
+                try:
+                    value = float(value)
+                    values[row["Hogwarts House"]].append(value)
+                except ValueError:
+                    continue
+
+        return values
 
     def get_statistics(self):
         stats = {}
@@ -148,6 +179,7 @@ class Dataset:
                 else:
                     print(f"{value:<{column_width}}", end="|")
             print()
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
