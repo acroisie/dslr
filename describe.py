@@ -2,20 +2,20 @@ import csv
 import math
 import sys
 
-
 class Dataset:
     def __init__(self, filename):
         self.filename = filename
         self.data = self.read_csv()
         self.features = self.get_numerical_features()
+        self.data = self.clean_and_convert_data()
         self.statistics = self.get_statistics()
 
     def get_data(self):
         return self.data
-    
+
     def get_features(self):
         return self.features
-    
+
     def get_statistics(self):
         return self.statistics
 
@@ -47,47 +47,59 @@ class Dataset:
             value = first_row[feature_name]
             if value != "":
                 try:
-                    float(first_row[feature_name])
+                    float(value)
                     numerical_features.append(feature_name)
                 except ValueError:
                     continue
-
         return numerical_features
 
     def get_houses(self):
         houses = set()
         for row in self.data:
-            houses.add(row["Hogwarts House"])
-
+            if "Hogwarts House" in row:
+                houses.add(row["Hogwarts House"])
         return houses
 
     def values_by_house(self, feature):
         values = {}
-        for house in self.get_houses():
+        houses = self.get_houses()
+        for house in houses:
             values[house] = []
         for row in self.data:
             value = row[feature]
-            if value != "":
-                try:
-                    value = float(value)
-                    values[row["Hogwarts House"]].append(value)
-                except ValueError:
-                    continue
-
+            values[row["Hogwarts House"]].append(value)
         return values
+
+    def clean_and_convert_data(self):
+        cleaned_data = []
+        for row in self.data:
+            valid_row = True
+            converted_row = {}
+            for key, val in row.items():
+                if key in self.features:
+
+                    if val == "":
+
+                        valid_row = False
+                        break
+                    try:
+                        val = float(val)
+                    except ValueError:
+
+                        valid_row = False
+                        break
+
+                converted_row[key] = val
+            if valid_row:
+                cleaned_data.append(converted_row)
+        return cleaned_data
 
     def get_statistics(self):
         stats = {}
         for feature in self.features:
-            values = []
-            for row in self.data:
-                value = row[feature]
-                if value != "":
-                    try:
-                        values.append(float(value))
-                    except ValueError:
-                        continue
-
+            values = [
+                row[feature] for row in self.data if isinstance(row[feature], float)
+            ]
             stats[feature] = {
                 "Count": len(values),
                 "Mean": self.mean(values),
@@ -102,39 +114,30 @@ class Dataset:
         return stats
 
     def mean(self, values):
-        total = 0.0
-        for value in values:
-            total += value
-        return total / len(values)
+        if not values:
+            return None
+        return sum(values) / len(values)
 
     def std_dev(self, values):
+        if not values:
+            return None
         mean = self.mean(values)
-        total = 0.0
-        for value in values:
-            total += (value - mean) ** 2
-
-        return math.sqrt(total / len(values))
+        total = sum((v - mean) ** 2 for v in values)
+        return math.sqrt(total / len(values)) if values else None
 
     def find_min(self, values):
-        min_value = values[0]
-        for value in values:
-            if value < min_value:
-                min_value = value
-
-        return min_value
+        if not values:
+            return None
+        return min(values)
 
     def find_max(self, values):
-        max_value = values[0]
-        for value in values:
-            if value > max_value:
-                max_value = value
-
-        return max_value
+        if not values:
+            return None
+        return max(values)
 
     def get_percentiles(self, values):
         if not values:
             return {25: None, 50: None, 75: None}
-
         sorted_values = sorted(values)
         n = len(sorted_values)
         percentiles = {}
@@ -149,12 +152,11 @@ class Dataset:
                 d1 = sorted_values[int(c)] * (k - f)
                 value = d0 + d1
             percentiles[percentile] = value
-
         return percentiles
 
-    def truncate(self, string, lenght):
-        if len(string) > lenght:
-            return string[: lenght - 2] + ".."
+    def truncate(self, string, length):
+        if len(string) > length:
+            return string[: length - 2] + ".."
         else:
             return string
 
@@ -177,9 +179,9 @@ class Dataset:
                 if isinstance(value, float):
                     print(f"{value:<{column_width}.6f}", end="|")
                 else:
-                    print(f"{value:<{column_width}}", end="|")
+                    val_str = str(value) if value is not None else ""
+                    print(f"{val_str:<{column_width}}", end="|")
             print()
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
