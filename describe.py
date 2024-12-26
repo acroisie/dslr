@@ -77,18 +77,14 @@ class Dataset:
             converted_row = {}
             for key, val in row.items():
                 if key in self.features:
-
                     if val == "":
-
                         valid_row = False
                         break
                     try:
                         val = float(val)
                     except ValueError:
-
                         valid_row = False
                         break
-
                 converted_row[key] = val
             if valid_row:
                 cleaned_data.append(converted_row)

@@ -31,3 +31,33 @@ class MathUtils:
         for j in range(len(theta)):
             grad[j] /= m
         return grad
+    
+    @staticmethod
+    def normalize_data(data, features):
+        means = {}
+        stds = {}
+
+        for feature in features:
+            values = [row[feature] for row in data]
+            mean = sum(values) / len(values)
+            variance = sum((x - mean) ** 2 for x in values) / len(values)
+            std = math.sqrt(variance)
+            means[feature] = mean
+            stds[feature] = std
+
+        normalized_data = []
+
+        for row in data:
+            new_row = row.copy()
+            for feature in features:
+                val_str = new_row[feature]
+                if val_str == "":
+                    continue
+                val = float(val_str)
+                if stds[feature] != 0:
+                    new_row[feature] = (val - means[feature]) / stds[feature]
+                else:
+                    new_row[feature] = 0.0
+            normalized_data.append(new_row)
+
+        return normalized_data

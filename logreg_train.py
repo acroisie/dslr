@@ -8,6 +8,8 @@ def load_data(selected_features):
     data = dataset.get_data()
     houses = dataset.get_houses()
 
+    data = MathUtils.normalize_data(data, selected_features)
+
     X = []
     for row in data:
         feature_row = [1.0]
@@ -50,7 +52,7 @@ if __name__ == "__main__":
     with open("weights.csv", "w", newline="") as file:
         writer = csv.writer(file)
         nb_thetas = len(next(iter(thetas.values())))
-        header = ["House"] + [f"Theta_{i}" for i in range(nb_thetas)]
+        header = ["House"] + [f"{feature}" for feature in selected_features]
         writer.writerow(header)
 
         for house, theta_values in thetas.items():
