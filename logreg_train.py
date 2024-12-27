@@ -1,28 +1,27 @@
 from describe import Dataset
 from math_utils import MathUtils
 import csv
-import sys
 
 def load_data(selected_features):
     dataset = Dataset("./data/dataset_train.csv")
     data = dataset.get_data()
     houses = dataset.get_houses()
 
-    data = MathUtils.normalize_data(data, selected_features)
+    means, stds = MathUtils.calculate_norm_params(data, selected_features)
+
+    normalized_data = MathUtils.normalize_data(data, selected_features, means, stds)
 
     X = []
-    for row in data:
+    for row in normalized_data:
         feature_row = [1.0]
-        # print(row.keys())
-        for feature_index in selected_features:
-            # print(row[feature_index])
-            feature_row.append(row[feature_index])
+        for feature in selected_features:
+            feature_row.append(row[feature])
         X.append(feature_row)
 
     thetas_by_house = {}
     for house in houses:
         y = []
-        for row in data:
+        for row in normalized_data:
             if row["Hogwarts House"] == house:
                 y.append(1)
             else:
@@ -46,7 +45,7 @@ def train_logistic_regression(X, y):
     return theta
 
 if __name__ == "__main__":
-    selected_features = ["Arithmancy", "Astronomy", "Herbology"]
+    selected_features = ["Astronomy", "Herbology", "Ancient Runes", "Charms", "Defense Against the Dark Arts"]
     thetas = load_data(selected_features)
 
     with open("weights.csv", "w", newline="") as file:

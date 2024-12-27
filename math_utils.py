@@ -3,7 +3,11 @@ import math
 class MathUtils:
     @staticmethod
     def sigmoid(z):
-        return 1 / (1 + math.exp(-z))
+        if z >= 0:
+            return 1.0 / (1.0 + math.exp(-z))
+        else:
+            e_z = math.exp(z)
+            return e_z / (1.0 + e_z)
 
     @staticmethod
     def compute_tendency(X, theta):
@@ -31,33 +35,32 @@ class MathUtils:
         for j in range(len(theta)):
             grad[j] /= m
         return grad
-    
+
     @staticmethod
-    def normalize_data(data, features):
+    def calculate_norm_params(data, features):
         means = {}
         stds = {}
-
         for feature in features:
-            values = [row[feature] for row in data]
+            values = [float(row[feature]) for row in data if row[feature] != ""]
             mean = sum(values) / len(values)
             variance = sum((x - mean) ** 2 for x in values) / len(values)
             std = math.sqrt(variance)
             means[feature] = mean
             stds[feature] = std
+        return means, stds
 
+    @staticmethod
+    def normalize_data(data, features, means, stds):
         normalized_data = []
-
         for row in data:
-            new_row = row.copy()
+            normalized_row = row.copy()
             for feature in features:
-                val_str = new_row[feature]
-                if val_str == "":
+                if row[feature] == "":
                     continue
-                val = float(val_str)
+                value = float(row[feature])
                 if stds[feature] != 0:
-                    new_row[feature] = (val - means[feature]) / stds[feature]
+                    normalized_row[feature] = (value - means[feature]) / stds[feature]
                 else:
-                    new_row[feature] = 0.0
-            normalized_data.append(new_row)
-
+                    normalized_row[feature] = 0.0
+            normalized_data.append(normalized_row)
         return normalized_data
