@@ -1,9 +1,10 @@
 from describe import Dataset
 from math_utils import MathUtils
 import csv
+import sys
 
-def load_data(selected_features):
-    dataset = Dataset("./data/dataset_train.csv")
+def load_data(selected_features, dataset_path):
+    dataset = Dataset(dataset_path)
     data = dataset.get_data()
     houses = dataset.get_houses()
 
@@ -45,8 +46,11 @@ def train_logistic_regression(X, y):
     return theta
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python logreg_train.py <dataset_train.csv>")
+        sys.exit(1)
     selected_features = ["Astronomy", "Herbology", "Ancient Runes", "Charms", "Defense Against the Dark Arts"]
-    thetas = load_data(selected_features)
+    thetas = load_data(selected_features, sys.argv[1])
 
     with open("weights.csv", "w", newline="") as file:
         writer = csv.writer(file)
