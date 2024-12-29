@@ -4,7 +4,7 @@ import csv
 import sys
 
 def load_data(selected_features, dataset_path):
-    dataset = Dataset(dataset_path)
+    dataset = Dataset(dataset_path, "train")
     data = dataset.get_data()
     houses = dataset.get_houses()
 

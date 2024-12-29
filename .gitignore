@@ -2,3 +2,5 @@ env/
 __pycache__/
 weights.csv
 houses.csv
+dataset_truth.csv
+evaluate.py

@@ -17,9 +17,9 @@ def load_weights(weights_path):
         print(f"File {weights_path} not found.")
         sys.exit(1)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred while loading weights: {e}")
         sys.exit(1)
-    
+
     print(f"Loaded weights for houses: {list(thetas_by_house.keys())}")
     print(f"Selected features: {selected_features}")
     return thetas_by_house, selected_features
@@ -29,29 +29,23 @@ def build_X_test(dataset, selected_features):
 
     means, stds = MathUtils.calculate_norm_params(data, selected_features)
 
+    for row in data:
+        for feature in selected_features:
+            if row[feature] == "":
+                row[feature] = means[feature]
+
     normalized_data = MathUtils.normalize_data(data, selected_features, means, stds)
 
     X_test = []
-    indexes = []
+    indexes = list(range(len(normalized_data)))
     for i, row in enumerate(normalized_data):
         feature_row = [1.0]
-        valid_row = True
         for feature in selected_features:
-            if feature in row and row[feature] != "":
-                try:
-                    feature_row.append(float(row[feature]))
-                except ValueError:
-                    valid_row = False
-                    break
-            else:
-                valid_row = False
-                break
 
-        if valid_row:
-            X_test.append(feature_row)
-            indexes.append(i)
+            feature_row.append(float(row[feature]))
+        X_test.append(feature_row)
 
-    print(f"Built X_test with {len(X_test)} rows")
+    print(f"Built X_test with {len(X_test)} rows (one per line in test set).")
     return X_test, indexes
 
 def predict_houses(X_test, thetas_by_house):
@@ -63,13 +57,14 @@ def predict_houses(X_test, thetas_by_house):
         best_probability = -1
         for house in houses_list:
             theta = thetas_by_house[house]
+
             probability = MathUtils.compute_tendency(x, theta)
             if probability > best_probability:
                 best_probability = probability
                 best_house = house
         predictions.append(best_house)
 
-    print(f"Predicted houses for {len(predictions)} students")
+    print(f"Predicted houses for {len(predictions)} students.")
     return predictions
 
 if __name__ == "__main__":
@@ -80,7 +75,7 @@ if __name__ == "__main__":
     dataset_test_path = sys.argv[1]
     weights_path = sys.argv[2]
     thetas_by_house, selected_features = load_weights(weights_path)
-    test_dataset = Dataset(dataset_test_path)
+    test_dataset = Dataset(dataset_test_path, "predict")
     X_test, indexes = build_X_test(test_dataset, selected_features)
     predictions = predict_houses(X_test, thetas_by_house)
     with open("houses.csv", "w", newline="") as f:

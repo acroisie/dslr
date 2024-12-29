@@ -3,11 +3,12 @@ import math
 import sys
 
 class Dataset:
-    def __init__(self, filename):
+    def __init__(self, filename, mode):
         self.filename = filename
         self.data = self.read_csv()
         self.features = self.get_numerical_features()
-        self.data = self.clean_and_convert_data()
+        if mode == "train":
+            self.data = self.clean_and_convert_data()
         self.statistics = self.get_statistics()
 
     def get_data(self):
