@@ -23,38 +23,42 @@ def load_data(selected_features, dataset_path):
         y.append(row["Hogwarts House"])
 
     thetas_by_house = {}
+    plt.figure()
     for house in houses:
         y_binary = [1 if label == house else 0 for label in y]
-        theta = train_logistic_regression(X, y_binary, house)
+        theta = train_logistic_regression(X, y_binary, house, costs_plot=True)
         thetas_by_house[house] = theta
+
+    plt.title("Cost Function During Training")
+    plt.xlabel("Iterations")
+    plt.ylabel("Cost")
+    plt.legend()
+    plt.show()
 
     accuracy = compute_training_accuracy(X, y, thetas_by_house)
     print(f"Training accuracy: {accuracy * 100:.2f}%")
 
-    # Plot feature importance
     plot_feature_importance(thetas_by_house, selected_features)
 
     return thetas_by_house
 
-def train_logistic_regression(X, y, house_name=None):
+def train_logistic_regression(X, y, house_name=None, costs_plot=False):
     feature_amount = len(X[0])
     theta = [0.0] * feature_amount
     alpha = 0.1
     iterations = 1000
 
-    costs = []  # To track the cost function values
+    costs = []
 
     for _ in range(iterations):
         gradients = MathUtils.compute_gradient(X, y, theta)
         for j in range(feature_amount):
             theta[j] -= gradients[j] * alpha
 
-        # Compute cost and track it
         cost = MathUtils.compute_cost(X, y, theta)
         costs.append(cost)
 
-    # Plot the cost curve for the current house
-    if house_name:
+    if costs_plot and house_name:
         plt.plot(range(iterations), costs, label=house_name)
 
     return theta
@@ -83,10 +87,10 @@ def predict_for_sample(X, thetas_by_house):
 def plot_feature_importance(thetas_by_house, selected_features):
     feature_importance = [0] * len(selected_features)
     for theta in thetas_by_house.values():
-        for i, weight in enumerate(theta[1:], start=0):  # Skip bias (theta[0])
+        for i, weight in enumerate(theta[1:], start=0):
             feature_importance[i] += abs(weight)
 
-    feature_importance = [imp / len(thetas_by_house) for imp in feature_importance]  # Average
+    feature_importance = [imp / len(thetas_by_house) for imp in feature_importance]
     plt.figure()
     plt.bar(selected_features, feature_importance)
     plt.title("Feature Importance")
@@ -102,13 +106,6 @@ if __name__ == "__main__":
         sys.exit(1)
     selected_features = ["Astronomy", "Herbology", "Ancient Runes", "Charms", "Defense Against the Dark Arts"]
     thetas = load_data(selected_features, sys.argv[1])
-
-    plt.figure()
-    plt.title("Cost Function During Training")
-    plt.xlabel("Iterations")
-    plt.ylabel("Cost")
-    plt.legend()
-    plt.show()
 
     with open("weights.csv", "w", newline="") as file:
         writer = csv.writer(file)

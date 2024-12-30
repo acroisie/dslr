@@ -3,7 +3,7 @@ import math
 import sys
 
 class Dataset:
-    def __init__(self, filename, mode):
+    def __init__(self, filename, mode = "train"):
         self.filename = filename
         self.data = self.read_csv()
         self.features = self.get_numerical_features()
