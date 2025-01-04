@@ -1,11 +1,11 @@
 from describe import Dataset
-import matplotlib
+import matplotlib, sys
 matplotlib.use('webagg')
 import matplotlib.pyplot as plt
 
 def on_close(event):
     print(f"\n{event.name}")
-    exit(0)
+    sys.exit(0)
 
 if __name__ == "__main__":
     dataset = Dataset("./data/dataset_train.csv")

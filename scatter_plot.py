@@ -1,10 +1,11 @@
 from describe import Dataset
 import matplotlib.pyplot as plt
+import sys
 
 
 def on_close(event):
     print(f"\n{event.name}")
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
