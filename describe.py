@@ -17,9 +17,6 @@ class Dataset:
     def get_features(self):
         return self.features
 
-    def get_statistics(self):
-        return self.statistics
-
     def read_csv(self):
         data = []
         try:
@@ -125,12 +122,20 @@ class Dataset:
     def find_min(self, values):
         if not values:
             return None
-        return min(values)
+        min_value = values[0]
+        for value in values:
+            if value < min_value:
+                min_value = value
+        return min_value
 
     def find_max(self, values):
         if not values:
             return None
-        return max(values)
+        max_value = values[0]
+        for value in values:
+            if value > max_value:
+                max_value = value
+        return max_value
 
     def get_percentiles(self, values):
         if not values:
