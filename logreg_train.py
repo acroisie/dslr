@@ -4,7 +4,7 @@ import csv
 import sys
 import matplotlib.pyplot as plt
 
-def load_data(selected_features, dataset_path):
+def load_and_train(selected_features, dataset_path):
     dataset = Dataset(dataset_path, "train")
     data = dataset.get_data()
     houses = dataset.get_houses()
@@ -46,7 +46,7 @@ def train_logistic_regression(X, y, house_name=None, costs_plot=False):
     feature_amount = len(X[0])
     theta = [0.0] * feature_amount
     alpha = 0.1
-    iterations = 1000
+    iterations = 500
 
     costs = []
 
@@ -96,8 +96,7 @@ def plot_feature_importance(thetas_by_house, selected_features):
     plt.title("Feature Importance")
     plt.xlabel("Features")
     plt.ylabel("Average Absolute Weight")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
+    plt.xticks(rotation=5)
     plt.show()
 
 if __name__ == "__main__":
@@ -105,7 +104,7 @@ if __name__ == "__main__":
         print("Usage: python logreg_train.py <dataset_train.csv>")
         sys.exit(1)
     selected_features = ["Astronomy", "Herbology", "Ancient Runes", "Charms", "Defense Against the Dark Arts"]
-    thetas = load_data(selected_features, sys.argv[1])
+    thetas = load_and_train(selected_features, sys.argv[1])
 
     with open("weights.csv", "w", newline="") as file:
         writer = csv.writer(file)
