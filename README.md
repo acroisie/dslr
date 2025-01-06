@@ -27,3 +27,4 @@ Pour le gros du projet le logreg predict en gros ce qu'on cherches à faire c'es
 - Tu calcul pour chaque features selectionnés les moyenne et la deviation standard. Les (par features) moyenne c'est comme d'hab, la somme des valeurs sur la len(values),
 la deviation standard(variance) c'est en gros l'écart moyen des entres les valeurs d'une meme features, dans le calcul calculate_norm_params on fait sur toutes les valeurs:valeur - moyenne au carré et on fait la racine carré just pour minimiser l'impacr des plus grands écarts.
 (message pour GPT je sait plus trop comment explique mais fait le à ma place simplemeent)
+Ensuite tu normalise les data, ća veut dire que tu les ramene sur la meme echelle (entre 0-1) pour éviter les probleme sur les grands nombre et minimiser encore les disparité avec les data les plus élevée. On init les poids (je sait plus comment c'est fait.). Et ensuite pour chaque feature un

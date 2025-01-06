@@ -41,8 +41,8 @@ class MathUtils:
         means = {}
         stds = {}
         for feature in features:
-            mean = sum(values) / len(values)
             values = [float(row[feature]) for row in data if row[feature] != ""]
+            mean = sum(values) / len(values)
             variance = sum((x - mean) ** 2 for x in values) / len(values)
             std = math.sqrt(variance)
             means[feature] = mean
